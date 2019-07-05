@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+<style type="text/css">
+	
+	.card {
+		max-width: 700px;
+	}
+
+	.container{
+		padding: 20px;
+	}
+</style>
+
+
+<div class="container">
+	<div class="row">
+		
+		<!-- Blog post -->
+		<div class="card m-auto">
+			<img class="card-img-top" src="{{blog_post.image.url}}">
+			<div class="card-body my-2">
+				<h2 class="card-title">{{blog_post.title}}</h2>
+				<p class="card-text">{{blog_post.body|safe}}</p>
+				<p>
+					{% if blog_post.author == request.user %}
+						<a href="{% url 'blog:edit' blog_post.slug %}" class="btn btn-primary">Update</a>
+					{% endif %}
+				</p>
+				
+			</div>
+			<div class="card-footer text-muted">
+				Updated on {{blog_post.date_updated}} by {{blog_post.author}}
+			</div>
+		</div>
+		<!-- end Blog post -->
+
+	</div>
+</div>
+
+{% endblock content %}
