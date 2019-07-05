@@ -4,9 +4,8 @@ from blog.models import BlogPost
 
 
 
-
-class BlogPostSerializer(serializers.Serializer):
-	Meta:
+class BlogPostSerializer(serializers.ModelSerializer):
+	class Meta:
 		model = BlogPost
 		fields = ['title', 'body', 'image']
 
