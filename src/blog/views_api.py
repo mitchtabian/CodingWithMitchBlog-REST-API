@@ -5,8 +5,6 @@ from rest_framework.decorators import api_view
 from blog.models import BlogPost
 from blog.serializers import BlogPostSerializer
 
-from django.views.decorators.csrf import csrf_exempt
-
 
 @api_view(['GET',])
 def api_detail_blog_view(request, slug):
@@ -18,5 +16,4 @@ def api_detail_blog_view(request, slug):
 
 	if request.method == 'GET':
 		serializer = BlogPostSerializer(blog_post)
-		print(serializer.data)
 		return Response(serializer.data)
