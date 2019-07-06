@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 
 from account.models import Account
 from blog.models import BlogPost
-from blog.serializers import BlogPostSerializer
+from blog.api.serializers import BlogPostSerializer
 
 SUCCESS = 'success'
 ERROR = 'error'
