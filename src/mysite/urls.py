@@ -36,11 +36,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', account_view, name="account"),
     path('blog/', include('blog.urls', 'blog')),
-    path('api/blog/', include('blog.urls_api', 'blog_api')),
     path('login/', login_view, name="login"),
     path('logout/', logout_view, name="logout"),
     path('must_authenticate/', must_authenticate_view, name="must_authenticate"),
     path('register/', registration_view, name="register"),
+	
+	# REST-framework
+    path('api/blog/', include('blog.api.urls', 'blog_api')),
+    path('api/account/', include('account.api.urls', 'account_api')),
 
     # Password reset links (ref: https://github.com/django/django/blob/master/django/contrib/auth/views.py)
     path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='registration/password_change_done.html'), 
