@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
 from account.models import Account
 from blog.models import BlogPost
@@ -11,9 +12,11 @@ SUCCESS = 'success'
 ERROR = 'error'
 DELETE_SUCCESS = 'deleted'
 UPDATE_SUCCESS = 'updated'
-CREATE_SUCCESS = 'created'
+PAGINATION_NUM_PAGES = 10
 
-
+# Response: https://gist.github.com/mitchtabian/93f287bd1370e7a1ad3c9588b0b22e3d
+# Url: https://<your-domain>/api/blog/<slug>/
+# Headers: Authorization: Token <token>
 @api_view(['GET', ])
 @permission_classes((IsAuthenticated, ))
 def api_detail_blog_view(request, slug):
@@ -28,6 +31,9 @@ def api_detail_blog_view(request, slug):
 		return Response(serializer.data)
 
 
+# Response: https://gist.github.com/mitchtabian/32507e93c530aa5949bc08d795ba66df
+# Url: https://<your-domain>/api/blog/<slug>/update
+# Headers: Authorization: Token <token>
 @api_view(['PUT',])
 @permission_classes((IsAuthenticated, ))
 def api_update_blog_view(request, slug):
@@ -51,6 +57,9 @@ def api_update_blog_view(request, slug):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Response: https://gist.github.com/mitchtabian/a97be3f8b71c75d588e23b414898ae5c
+# Url: https://<your-domain>/api/blog/<slug>/delete
+# Headers: Authorization: Token <token>
 @api_view(['DELETE',])
 @permission_classes((IsAuthenticated, ))
 def api_delete_blog_view(request, slug):
@@ -72,6 +81,9 @@ def api_delete_blog_view(request, slug):
 		return Response(data=data)
 
 
+# Response: https://gist.github.com/mitchtabian/78d7dcbeab4135c055ff6422238a31f9
+# Url: https://<your-domain>/api/blog/create
+# Headers: Authorization: Token <token>
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def api_create_blog_view(request):
@@ -87,12 +99,19 @@ def api_create_blog_view(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# Response: https://gist.github.com/mitchtabian/ae03573737067c9269701ea662460205
+# Url: https://<your-domain>/api/blog/list
+# Headers: Authorization: Token <token>
 @api_view(['GET',])
 @permission_classes((IsAuthenticated, ))
 def api_blog_list_view(request):
 
-	blog_posts = BlogPost.objects.all()
-
+	if request.method == 'GET':
+		paginator = PageNumberPagination()
+		paginator.page_size = PAGINATION_NUM_PAGES
+		blog_posts = BlogPost.objects.all()
+		result_page = paginator.paginate_queryset(blog_posts, request)
+		serializer = BlogPostSerializer(result_page, many=True)
+		return paginator.get_paginated_response(serializer.data)
 
 
