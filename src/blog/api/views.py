@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 from account.models import Account
 from blog.models import BlogPost
@@ -106,7 +106,8 @@ def api_create_blog_view(request):
 #		1) list: https://<your-domain>/api/blog/list
 #		2) pagination: http://<your-domain>/api/blog/list?page=2
 #		3) search: http://<your-domain>/api/blog/list?search=mitch
-#		4) search + pagination: <your-domain>/api/blog/list?search=mitch&page=2
+#		4) ordering: http://<your-domain>/api/blog/list?ordering=-date_updated
+#		4) search + pagination + ordering: <your-domain>/api/blog/list?search=mitch&page=2&ordering=-date_updated
 # Headers: Authorization: Token <token>
 class ApiBlogListView(ListAPIView):
 	queryset = BlogPost.objects.all()
@@ -114,5 +115,5 @@ class ApiBlogListView(ListAPIView):
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = (IsAuthenticated,)
 	pagination_class = PageNumberPagination
-	filter_backends = (SearchFilter,)
+	filter_backends = (SearchFilter, OrderingFilter)
 	search_fields = ('title', 'body', 'author__username')
