@@ -2,7 +2,9 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import ListAPIView
 
 from account.models import Account
 from blog.models import BlogPost
@@ -12,7 +14,6 @@ SUCCESS = 'success'
 ERROR = 'error'
 DELETE_SUCCESS = 'deleted'
 UPDATE_SUCCESS = 'updated'
-PAGINATION_NUM_PAGES = 10
 
 # Response: https://gist.github.com/mitchtabian/93f287bd1370e7a1ad3c9588b0b22e3d
 # Url: https://<your-domain>/api/blog/<slug>/
@@ -102,16 +103,10 @@ def api_create_blog_view(request):
 # Response: https://gist.github.com/mitchtabian/ae03573737067c9269701ea662460205
 # Url: https://<your-domain>/api/blog/list
 # Headers: Authorization: Token <token>
-@api_view(['GET',])
-@permission_classes((IsAuthenticated, ))
-def api_blog_list_view(request):
-
-	if request.method == 'GET':
-		paginator = PageNumberPagination()
-		paginator.page_size = PAGINATION_NUM_PAGES
-		blog_posts = BlogPost.objects.all()
-		result_page = paginator.paginate_queryset(blog_posts, request)
-		serializer = BlogPostSerializer(result_page, many=True)
-		return paginator.get_paginated_response(serializer.data)
-
+class ApiBlogListView(ListAPIView):
+	queryset = BlogPost.objects.all()
+	serializer_class = BlogPostSerializer
+	authentication_classes = (TokenAuthentication,)
+	permission_classes = (IsAuthenticated,)
+	pagination_class = PageNumberPagination
 
