@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
+from rest_framework.filters import SearchFilter
 
 from account.models import Account
 from blog.models import BlogPost
@@ -101,7 +102,11 @@ def api_create_blog_view(request):
 
 
 # Response: https://gist.github.com/mitchtabian/ae03573737067c9269701ea662460205
-# Url: https://<your-domain>/api/blog/list
+# Url: 
+#		1) list: https://<your-domain>/api/blog/list
+#		2) pagination: http://<your-domain>/api/blog/list?page=2
+#		3) search: http://<your-domain>/api/blog/list?search=mitch
+#		4) search + pagination: <your-domain>/api/blog/list?search=mitch&page=2
 # Headers: Authorization: Token <token>
 class ApiBlogListView(ListAPIView):
 	queryset = BlogPost.objects.all()
@@ -109,4 +114,5 @@ class ApiBlogListView(ListAPIView):
 	authentication_classes = (TokenAuthentication,)
 	permission_classes = (IsAuthenticated,)
 	pagination_class = PageNumberPagination
-
+	filter_backends = (SearchFilter,)
+	search_fields = ('title', 'body', 'author__username')
