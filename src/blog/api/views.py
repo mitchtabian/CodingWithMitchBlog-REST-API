@@ -76,9 +76,7 @@ def api_delete_blog_view(request, slug):
 @permission_classes((IsAuthenticated, ))
 def api_create_blog_view(request):
 
-	account = Account.objects.get(pk=1)
-
-	blog_post = BlogPost(author=account)
+	blog_post = BlogPost(author=request.user)
 
 	if request.method == 'POST':
 		serializer = BlogPostSerializer(blog_post, data=request.data)
