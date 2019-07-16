@@ -24,7 +24,7 @@
 				<a href="{% url 'blog:detail' post.slug %}">
 					<h2 class="card-title">{{blog_post.title}}</h2>
 				</a>
-				<p class="card-text">{{blog_post.body|safe|truncatechars:250}}</p>
+				<p class="card-text">{{blog_post.body|linebreaksbr|truncatechars:250}}</p>
 				{% if blog_post.author == request.user %}
 					<a href="{% url 'blog:edit' blog_post.slug %}" class="btn btn-primary">Update</a>
 				{% endif %}
