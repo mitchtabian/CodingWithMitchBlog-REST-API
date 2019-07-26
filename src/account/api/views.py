@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 
 from account.api.serializers import RegistrationSerializer, AccountPropertiesSerializer
@@ -11,6 +11,8 @@ from rest_framework.authtoken.models import Token
 # Response: https://gist.github.com/mitchtabian/c13c41fa0f51b304d7638b7bac7cb694
 # Url: https://<your-domain>/api/account/register
 @api_view(['POST', ])
+@permission_classes([])
+@authentication_classes([])
 def registration_view(request):
 
 	if request.method == 'POST':
