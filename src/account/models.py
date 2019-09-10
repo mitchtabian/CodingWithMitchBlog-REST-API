@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from django.conf import settings
@@ -71,9 +72,22 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 
 
+class CodingWithMitchAccount(models.Model):
+	account 				= models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	cwm_member_valid_until 	= models.DateTimeField(verbose_name='cwm member valid until', blank=True, null=True)
 
 
+	def __str__(self):
+		return self.account.email
 
+	def is_membership_valid(self):
+		today = timezone.now()
+		if self.cwm_member_valid_until == None:
+			return False
+		difference = self.cwm_member_valid_until - today
+		if difference.days > 0:
+			return True
+		return False
 
 
 
