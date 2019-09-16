@@ -1,4 +1,3 @@
-from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -8,13 +7,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from account.models import Account, CodingWithMitchAccount
+from account.models import Account
 from blog.models import BlogPost
-from blog.api.serializers import BlogPostSerializer, BlogPostCreateSerializer, BlogPostUpdateSerializer
-from blog.api.utils import check_cwm_account
-from blog.api.permissions import IsCodingWithMitchMember, HasReachedDailyRequestLimit, HasReachedDailyBlogPostLimit
-from limit.models import DailyBlogPostLimit, DAILY_BLOG_POST_LIMIT
-from limit.utils import increment_daily_blog_posts
+from blog.api.serializers import BlogPostSerializer, BlogPostUpdateSerializer, BlogPostCreateSerializer
 
 SUCCESS = 'success'
 ERROR = 'error'
@@ -26,11 +21,9 @@ CREATE_SUCCESS = 'created'
 # Url: https://<your-domain>/api/blog/<slug>/
 # Headers: Authorization: Token <token>
 @api_view(['GET', ])
-@permission_classes((IsAuthenticated, HasReachedDailyRequestLimit))
+@permission_classes((IsAuthenticated, ))
 def api_detail_blog_view(request, slug):
 
-	if check_cwm_account(request.user):
-		return check_cwm_account(request.user)
 	try:
 		blog_post = BlogPost.objects.get(slug=slug)
 	except BlogPost.DoesNotExist:
@@ -45,11 +38,9 @@ def api_detail_blog_view(request, slug):
 # Url: https://<your-domain>/api/blog/<slug>/update
 # Headers: Authorization: Token <token>
 @api_view(['PUT',])
-@permission_classes((IsAuthenticated, HasReachedDailyRequestLimit))
+@permission_classes((IsAuthenticated,))
 def api_update_blog_view(request, slug):
 
-	if check_cwm_account(request.user):
-		return check_cwm_account(request.user)
 	try:
 		blog_post = BlogPost.objects.get(slug=slug)
 	except BlogPost.DoesNotExist:
@@ -63,7 +54,6 @@ def api_update_blog_view(request, slug):
 		serializer = BlogPostUpdateSerializer(blog_post, data=request.data, partial=True)
 		data = {}
 		if serializer.is_valid():
-			print("VALID")
 			serializer.save()
 			data['response'] = UPDATE_SUCCESS
 			data['pk'] = blog_post.pk
@@ -76,20 +66,34 @@ def api_update_blog_view(request, slug):
 				image_url = image_url[:image_url.rfind("?")]
 			data['image'] = image_url
 			data['username'] = blog_post.author.username
-			increment_daily_blog_posts(user)
 			return Response(data=data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET',])
+@permission_classes((IsAuthenticated,))
+def api_is_author_of_blogpost(request, slug):
+	try:
+		blog_post = BlogPost.objects.get(slug=slug)
+	except BlogPost.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	data = {}
+	user = request.user
+	if blog_post.author != user:
+		data['response'] = "You don't have permission to edit that."
+		return Response(data=data)
+	data['response'] = "You have permission to edit that."
+	return Response(data=data)
 
 
 # Response: https://gist.github.com/mitchtabian/a97be3f8b71c75d588e23b414898ae5c
 # Url: https://<your-domain>/api/blog/<slug>/delete
 # Headers: Authorization: Token <token>
 @api_view(['DELETE',])
-@permission_classes((IsAuthenticated, HasReachedDailyRequestLimit))
+@permission_classes((IsAuthenticated, ))
 def api_delete_blog_view(request, slug):
-
-	if check_cwm_account(request.user):
-		return check_cwm_account(request.user)
 
 	try:
 		blog_post = BlogPost.objects.get(slug=slug)
@@ -108,16 +112,12 @@ def api_delete_blog_view(request, slug):
 		return Response(data=data)
 
 
-
 # Response: https://gist.github.com/mitchtabian/78d7dcbeab4135c055ff6422238a31f9
 # Url: https://<your-domain>/api/blog/create
 # Headers: Authorization: Token <token>
 @api_view(['POST'])
-@permission_classes((IsAuthenticated, HasReachedDailyRequestLimit, HasReachedDailyBlogPostLimit))
+@permission_classes((IsAuthenticated,))
 def api_create_blog_view(request):
-
-	if check_cwm_account(request.user):
-		return check_cwm_account(request.user)
 
 	if request.method == 'POST':
 
@@ -143,7 +143,6 @@ def api_create_blog_view(request):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 # Response: https://gist.github.com/mitchtabian/ae03573737067c9269701ea662460205
 # Url: 
 #		1) list: https://<your-domain>/api/blog/list
@@ -156,11 +155,7 @@ class ApiBlogListView(ListAPIView):
 	queryset = BlogPost.objects.all()
 	serializer_class = BlogPostSerializer
 	authentication_classes = (TokenAuthentication,)
-	permission_classes = (IsAuthenticated, IsCodingWithMitchMember, HasReachedDailyRequestLimit)
+	permission_classes = (IsAuthenticated,)
 	pagination_class = PageNumberPagination
 	filter_backends = (SearchFilter, OrderingFilter)
 	search_fields = ('title', 'body', 'author__username')
-
-
-
-

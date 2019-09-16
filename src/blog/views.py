@@ -2,14 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.http import HttpResponse
 
-
 from blog.models import BlogPost
 from blog.forms import CreateBlogPostForm, UpdateBlogPostForm
 
-from account.models import Account, CodingWithMitchAccount
-
-from limit.utils import increment_daily_blog_posts
-
+from account.models import Account
 
 
 def create_blog_view(request):
@@ -20,17 +16,12 @@ def create_blog_view(request):
 	if not user.is_authenticated:
 		return redirect('must_authenticate')
 
-	cwm_account = CodingWithMitchAccount.objects.get(account=user)
-	if not cwm_account.is_membership_valid():
-		return redirect("codingwithmitch_member_required")
-
 	form = CreateBlogPostForm(request.POST or None, request.FILES or None)
 	if form.is_valid():
 		obj = form.save(commit=False)
 		author = Account.objects.filter(email=user.email).first()
 		obj.author = author
 		obj.save()
-		increment_daily_blog_posts(author)
 		form = CreateBlogPostForm()
 
 	context['form'] = form
@@ -51,15 +42,11 @@ def detail_blog_view(request, slug):
 
 def edit_blog_view(request, slug):
 
+	context = {}
+
 	user = request.user
 	if not user.is_authenticated:
 		return redirect("must_authenticate")
-
-	cwm_account = CodingWithMitchAccount.objects.get(account=user)
-	if not cwm_account.is_membership_valid():
-		return redirect("codingwithmitch_member_required")
-		
-	context = {}
 
 	blog_post = get_object_or_404(BlogPost, slug=slug)
 
@@ -99,12 +86,3 @@ def get_blog_queryset(query=None):
 			queryset.append(post)
 
 	return list(set(queryset))	
-
-
-
-
-
-
-
-
-

@@ -2,9 +2,6 @@ from django.shortcuts import render
 from operator import attrgetter
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
-from urllib.request import urlopen
-from django.http import HttpResponse
-
 from blog.views import get_blog_queryset
 from blog.models import BlogPost
 
@@ -35,35 +32,3 @@ def home_screen_view(request):
 	context['blog_posts'] = blog_posts
 
 	return render(request, "personal/home.html", context)
-
-
-
-
-def api_view(request):
-	return render(request, 'personal/api.html', {})
-
-
-
-def raw_blogs_json_placeholder(request):
-
-	data = urlopen("https://cdn.open-api.xyz/open-api-static/raw_json_blogs.json")
-	# print(data)
-	return HttpResponse(data, content_type="application/json")
-
-
-
-def raw_user_json_placeholder(request):
-
-	data = urlopen("https://cdn.open-api.xyz/open-api-static/raw_json_user_data.json")
-	# print(data)
-	return HttpResponse(data, content_type="application/json")
-
-
-
-
-
-
-
-
-
-
