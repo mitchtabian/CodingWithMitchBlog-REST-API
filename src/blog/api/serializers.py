@@ -1,3 +1,5 @@
+from rest_framework import serializers
+
 import cv2
 import sys
 import os
@@ -8,15 +10,13 @@ IMAGE_SIZE_MAX_BYTES = 1024 * 1024 * 2 # 2MB
 MIN_TITLE_LENGTH = 5
 MIN_BODY_LENGTH = 50
 
-from rest_framework import serializers
-
 from blog.models import BlogPost
 
 
 class BlogPostSerializer(serializers.ModelSerializer):
 
-	username 		= serializers.SerializerMethodField('get_username_from_author')
-	image 			= serializers.SerializerMethodField('validate_image_url')
+	username = serializers.SerializerMethodField('get_username_from_author')
+	image 	 = serializers.SerializerMethodField('validate_image_url')
 
 	class Meta:
 		model = BlogPost
@@ -33,6 +33,8 @@ class BlogPostSerializer(serializers.ModelSerializer):
 		if "?" in new_url:
 			new_url = image.url[:image.url.rfind("?")]
 		return new_url
+
+
 
 
 
@@ -63,7 +65,7 @@ class BlogPostUpdateSerializer(serializers.ModelSerializer):
 
 			if sys.getsizeof(image.file) > IMAGE_SIZE_MAX_BYTES:
 				os.remove(url)
-				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 3 MB. Try a different image."})
+				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 2 MB. Try a different image."})
 
 			img = cv2.imread(url)
 			dimensions = img.shape # gives: (height, width, ?)
@@ -116,7 +118,7 @@ class BlogPostCreateSerializer(serializers.ModelSerializer):
 
 			if sys.getsizeof(image.file) > IMAGE_SIZE_MAX_BYTES:
 				os.remove(url)
-				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 3 MB. Try a different image."})
+				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 2 MB. Try a different image."})
 
 			img = cv2.imread(url)
 			dimensions = img.shape # gives: (height, width, ?)
@@ -130,7 +132,15 @@ class BlogPostCreateSerializer(serializers.ModelSerializer):
 			blog_post.save()
 			return blog_post
 		except KeyError:
-			raise serializers.ValidationError({"response": "You must have a title, some content, and an image."}) 
+			raise serializers.ValidationError({"response": "You must have a title, some content, and an image."})
+
+
+
+
+
+
+
+
 
 
 

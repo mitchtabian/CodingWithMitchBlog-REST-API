@@ -47,13 +47,13 @@
 <script type="text/javascript">
 	document.getElementById("id_q").value = "{{query}}"
 </script>
-<script>
-function executeQuery() {
-    var query = document.getElementById('id_q').value;
-    window.location.replace("http://127.0.0.1:8000/?q=" + query)
-    // FOR PRODUCTION: "https://open-api.xyz/?q=" + query;
-    return false
-}
-
+<script type="text/javascript">
+	function executeQuery(){
+		var query = document.getElementById("id_q").value
+		window.location.replace("http://127.0.0.1:8000/?q=" + query)
+		// "https://open-api.xyz/?q=" + query
+		return false
+	}
 </script>
+
 <!-- End Header -->

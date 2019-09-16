@@ -14,8 +14,8 @@ from blog.api.serializers import BlogPostSerializer, BlogPostUpdateSerializer, B
 SUCCESS = 'success'
 ERROR = 'error'
 DELETE_SUCCESS = 'deleted'
-CREATE_SUCCESS = 'created'
 UPDATE_SUCCESS = 'updated'
+CREATE_SUCCESS = 'created'
 
 # Response: https://gist.github.com/mitchtabian/93f287bd1370e7a1ad3c9588b0b22e3d
 # Url: https://<your-domain>/api/blog/<slug>/
@@ -68,6 +68,24 @@ def api_update_blog_view(request, slug):
 			data['username'] = blog_post.author.username
 			return Response(data=data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET',])
+@permission_classes((IsAuthenticated,))
+def api_is_author_of_blogpost(request, slug):
+	try:
+		blog_post = BlogPost.objects.get(slug=slug)
+	except BlogPost.DoesNotExist:
+		return Response(status=status.HTTP_404_NOT_FOUND)
+
+	data = {}
+	user = request.user
+	if blog_post.author != user:
+		data['response'] = "You don't have permission to edit that."
+		return Response(data=data)
+	data['response'] = "You have permission to edit that."
+	return Response(data=data)
 
 
 # Response: https://gist.github.com/mitchtabian/a97be3f8b71c75d588e23b414898ae5c

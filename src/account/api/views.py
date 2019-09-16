@@ -1,9 +1,10 @@
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 
 from account.api.serializers import RegistrationSerializer, AccountPropertiesSerializer
 from account.models import Account
@@ -106,10 +107,9 @@ def update_account_view(request):
 
 
 
-
 # LOGIN
 # Response: https://gist.github.com/mitchtabian/8e1bde81b3be342853ddfcc45ec0df8a
-# URL: https://<your-domain>/api/account/login
+# URL: http://127.0.0.1:8000/api/account/login
 class ObtainAuthTokenView(APIView):
 
 	authentication_classes = []
@@ -135,6 +135,18 @@ class ObtainAuthTokenView(APIView):
 			context['error_message'] = 'Invalid credentials'
 
 		return Response(context)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
