@@ -1,7 +1,6 @@
 from rest_framework import serializers
+from blog.models import BlogPost
 
-import cv2
-import sys
 import os
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -10,7 +9,7 @@ IMAGE_SIZE_MAX_BYTES = 1024 * 1024 * 2 # 2MB
 MIN_TITLE_LENGTH = 5
 MIN_BODY_LENGTH = 50
 
-from blog.models import BlogPost
+from blog.utils import is_image_aspect_ratio_valid, is_image_size_valid
 
 
 class BlogPostSerializer(serializers.ModelSerializer):
@@ -33,7 +32,6 @@ class BlogPostSerializer(serializers.ModelSerializer):
 		if "?" in new_url:
 			new_url = image.url[:image.url.rfind("?")]
 		return new_url
-
 
 
 
@@ -63,15 +61,13 @@ class BlogPostUpdateSerializer(serializers.ModelSerializer):
 					destination.write(chunk)
 				destination.close()
 
-			if sys.getsizeof(image.file) > IMAGE_SIZE_MAX_BYTES:
+			# Check image size
+			if not is_image_size_valid(url, IMAGE_SIZE_MAX_BYTES):
 				os.remove(url)
 				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 2 MB. Try a different image."})
 
-			img = cv2.imread(url)
-			dimensions = img.shape # gives: (height, width, ?)
-			
-			aspect_ratio = dimensions[1] / dimensions[0] # divide w / h
-			if aspect_ratio < 1:
+			# Check image aspect ratio
+			if not is_image_aspect_ratio_valid(url):
 				os.remove(url)
 				raise serializers.ValidationError({"response": "Image height must not exceed image width. Try a different image."})
 
@@ -116,15 +112,13 @@ class BlogPostCreateSerializer(serializers.ModelSerializer):
 					destination.write(chunk)
 				destination.close()
 
-			if sys.getsizeof(image.file) > IMAGE_SIZE_MAX_BYTES:
+			# Check image size
+			if not is_image_size_valid(url, IMAGE_SIZE_MAX_BYTES):
 				os.remove(url)
 				raise serializers.ValidationError({"response": "That image is too large. Images must be less than 2 MB. Try a different image."})
 
-			img = cv2.imread(url)
-			dimensions = img.shape # gives: (height, width, ?)
-			
-			aspect_ratio = dimensions[1] / dimensions[0] # divide w / h
-			if aspect_ratio < 1:
+			# Check image aspect ratio
+			if not is_image_aspect_ratio_valid(url):
 				os.remove(url)
 				raise serializers.ValidationError({"response": "Image height must not exceed image width. Try a different image."})
 
@@ -133,8 +127,6 @@ class BlogPostCreateSerializer(serializers.ModelSerializer):
 			return blog_post
 		except KeyError:
 			raise serializers.ValidationError({"response": "You must have a title, some content, and an image."})
-
-
 
 
 
