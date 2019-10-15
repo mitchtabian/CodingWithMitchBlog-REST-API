@@ -54,7 +54,10 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'account.Account'
-
+AUTHENTICATION_BACKENDS = ( 
+    'django.contrib.auth.backends.AllowAllUsersModelBackend', 
+    'account.backends.CaseInsensitiveModelBackend',
+    )
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
