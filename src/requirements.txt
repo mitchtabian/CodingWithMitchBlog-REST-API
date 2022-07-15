@@ -6,7 +6,7 @@ certifi==2019.6.16
 chardet==3.0.4
 Django==2.2.2
 django-celery-beat==1.5.0
-django-celery-results==1.1.2
+django-celery-results==2.4.0
 django-timezone-field==3.0
 djangorestframework==3.9.4
 idna==2.8
